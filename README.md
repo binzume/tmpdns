@@ -9,19 +9,26 @@ APIがないネームサーバを使っている場合に_acme-challengeのNSレ
 
 # Usage
 
-```console
+```shell
 go get -d
 CGO_ENABLED=0 go build
 ./tmpdns -p 53 "hoge.example.com.:txt:hello! world" "fuga.example.com.:a:192.168.0.1"
-./tmpdns -p 53 -z example.com. "hoge:txt:hello! world" "fuga:a:192.168.0.1"
+./tmpdns -p 53 -z example.com. "hoge:txt:hello" "fuga:a:192.168.0.1"
 ```
 (FQDNを示す `.` の書き忘れに注意)
 
 ## Docker image
 
-```console
+```shell
 dokcer pull binzume/tmpdns
-docker run --rm -p 53:53/udp --name tmpdns binzume/tmpdns -z example.com. "hoge:txt:hello! world" "fuga:a:192.168.0.1"
+docker run --rm -p 53:53/udp --name tmpdns binzume/tmpdns -z example.com. "hoge:txt:hello" "fuga:a:192.168.0.1"
+```
+
+query sample:
+
+```shell
+dig fuga.example.com @localhost  # 192.168.0.1
+dig txt hoge.example.com @localhost  # "hello"
 ```
 
 ## Flags
