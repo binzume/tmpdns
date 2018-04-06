@@ -10,21 +10,6 @@ import (
 	"github.com/miekg/dns"
 )
 
-var records = map[string][]dns.RR{}
-
-func handleQuery(m *dns.Msg) {
-	for _, q := range m.Question {
-		log.Printf("query %s %d\n", q.Name, q.Qtype)
-		name := strings.ToLower(q.Name)
-		for _,rr := range records[name] {
-			log.Printf("RR %v\n", rr)
-			if rr.Header().Rrtype == q.Qtype {
-				m.Answer = append(m.Answer, rr)
-			}
-		}
-	}
-}
-
 func rr(name, qtype, value string) dns.RR {
 	r, _ := dns.NewRR(fmt.Sprintf("%s 1 %s %s", name, strings.ToUpper(qtype), value))
 	return r
@@ -35,6 +20,7 @@ func main() {
 	zone := flag.String("z", ".", "zone")
 	flag.Parse()
 
+	records := map[string][]dns.RR{}
 	for _, v := range flag.Args() {
 		r := strings.SplitN(v, ":", 3)
 		if len(r) == 3 { // name:type:value
@@ -52,7 +38,15 @@ func main() {
 		m.SetReply(r)
 		switch r.Opcode {
 		case dns.OpcodeQuery:
-			handleQuery(m)
+			for _, q := range m.Question {
+				log.Printf("query %s %d\n", q.Name, q.Qtype)
+				for _, rr := range records[strings.ToLower(q.Name)] {
+					if rr.Header().Rrtype == q.Qtype {
+						log.Printf("RR %v\n", rr)
+						m.Answer = append(m.Answer, rr)
+					}
+				}
+			}
 		}
 		w.WriteMsg(m)
 	})
