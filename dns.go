@@ -10,28 +10,17 @@ import (
 	"github.com/miekg/dns"
 )
 
-var records = map[string]dns.RR{}
+var records = map[string][]dns.RR{}
 
 func handleQuery(m *dns.Msg) {
 	for _, q := range m.Question {
-		log.Printf("query %s %s\n", q.Name, q.Qtype)
+		log.Printf("query %s %d\n", q.Name, q.Qtype)
 		name := strings.ToLower(q.Name)
-		qtype := ""
-		switch q.Qtype {
-		case dns.TypeA:
-			qtype = "a"
-		case dns.TypeAAAA:
-			qtype = "aaaa"
-		case dns.TypeTXT:
-			qtype = "txt"
-		case dns.TypeCNAME:
-			qtype = "cname"
-		case dns.TypeNS:
-			qtype = "ns"
-		}
-		if rr, ok := records[name+":"+qtype]; ok {
+		for _,rr := range records[name] {
 			log.Printf("RR %v\n", rr)
-			m.Answer = append(m.Answer, rr)
+			if rr.Header().Rrtype == q.Qtype {
+				m.Answer = append(m.Answer, rr)
+			}
 		}
 	}
 }
@@ -52,7 +41,7 @@ func main() {
 			if !strings.HasSuffix(r[0], ".") {
 				r[0] = r[0] + "." + *zone
 			}
-			records[r[0]+":"+r[1]] = rr(r[0], r[1], r[2])
+			records[r[0]] = append(records[r[0]], rr(r[0], r[1], r[2]))
 		} else {
 			log.Printf("unknown record %s", v)
 		}
