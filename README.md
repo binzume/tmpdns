@@ -1,11 +1,10 @@
 # TmpDNS
 
-テンポラリなDNSサーバー．
-設定ファイルなどは存在せず，起動時のコマンドライン引数のみで完結します．
+テンポラリなネームサーバー．
+設定ファイルなどは存在せず，起動時のコマンドライン引数のみで完結する簡易DNSです．
 
-一瞬だけDNSサーバを立てたくなったときに便利です．
-
-ACMEのDNS認証用にも使えます．
+ACMEのDNS認証用に作ったやつです．
+APIがないネームサーバを使っている場合に_acme-challengeのNSレコードを適当なホストに向けておいて，そこで起動する想定．
 (dns_tmpdns.sh がacme.shから使えます)
 
 # Usage
@@ -31,7 +30,5 @@ docker run --rm -p 53:53/udp --name tmpdns binzume/tmpdns -z example.com. "hoge:
 - -z: zone (default:.)
 
 # License
-
-TOOD:
 
 MIT License
