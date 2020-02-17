@@ -5,7 +5,7 @@ dns_tmpdns_add() {
   fulldomain=$1
   txtvalue=$2
   _debug "docker run"
-  exists=`docker inspect -f '{{.Config.Cmd}}' tmpdns | awk '{print substr($0, 3,length($0)-4)}'` || true
+  exists=`docker inspect -f '{{.Config.Cmd}}' tmpdns | awk '{print substr($0, 2,length($0)-2)}'` || true
   docker rm -f tmpdns || true
   docker run -d -p 53:53/udp --name tmpdns binzume/tmpdns $exists "$fulldomain.:txt:$txtvalue"
 }
