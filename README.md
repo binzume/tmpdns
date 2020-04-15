@@ -4,8 +4,7 @@
 設定ファイルなどは存在せず，起動時のコマンドライン引数のみで完結する簡易DNSです．
 
 ACMEのDNS認証用に作ったやつです．
-APIがないネームサーバを使っている場合に_acme-challengeのNSレコードを適当なホストに向けておいて，そこで起動する想定．
-(dns_tmpdns.sh がacme.shから使えます)
+APIがないネームサーバを使っている場合，_acme-challengeのNSレコードを適当なホストを登録し，そこでDNSサーバを起動することで認証できます．
 
 # Usage
 
@@ -35,6 +34,33 @@ dig txt hoge.example.com @localhost  # "hello"
 
 - -p: port (default:53)
 - -z: zone (default:.)
+
+# acme.sh用
+
+ACMEv2のDNS認証用のDNSサーバとして利用できます (tmpdnsを実装した当初の目的です)
+
+参考： https://qiita.com/binzume/items/698d12779b8ad5cda423
+
+事前にお使いのDNSサービスに例えば `_acme-challenge.example.com` のNSレコードを登録し，acme.shもインストールしておいてください．
+
+```bash
+docker run --rm -p 53:53/udp binzume/tmpdns "_acme-challenge.exmaple.com.:txt:hello"
+```
+
+としてtmpdnsを起動した状態で，
+
+```bash
+dig _acme-challenge.exmaple.com txt
+```
+
+でhelloが返ってくれば正しく設定できています．
+
+あとはスクリプトをdnsapi下にコピーして使ってください．
+
+```bash
+cp dns_tmpdns.sh ~/.acme.sh/dnsapi
+acme.sh --issue --dnssleep 10 --dns dns_tmpdns -d example.jp -d *.example.jp
+```
 
 # License
 
