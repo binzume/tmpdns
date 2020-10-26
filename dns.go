@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	"github.com/miekg/dns"
@@ -16,7 +15,7 @@ func rr(name, qtype, value string) dns.RR {
 }
 
 func main() {
-	port := flag.Int("p", 53, "listen port")
+	port := flag.String("p", "53", "bind to [addr:]port")
 	zone := flag.String("z", ".", "zone")
 	flag.Parse()
 
@@ -51,8 +50,12 @@ func main() {
 		w.WriteMsg(m)
 	})
 
-	server := &dns.Server{Addr: ":" + strconv.Itoa(*port), Net: "udp"}
-	log.Printf("Start DNS Server at :%d  %v\n", *port, records)
+	if ! strings.Contains(*port, ":") {
+		*port = ":" + *port
+	}
+
+	server := &dns.Server{Addr: *port, Net: "udp"}
+	log.Printf("Start DNS Server at %s  %v\n", *port, records)
 	err := server.ListenAndServe()
 	defer server.Shutdown()
 	if err != nil {
