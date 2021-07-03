@@ -8,14 +8,16 @@ APIがないネームサーバを使っている場合，_acme-challengeのNSレ
 # Usage
 
 ```shell
-go get -d
-CGO_ENABLED=0 go build
-./tmpdns -p 53 "hoge.example.com.:txt:hello! world" "fuga.example.com.:a:192.168.0.1"
-./tmpdns -p 53 -z example.com. "hoge:txt:hello" "fuga:a:192.168.0.1"
+go install github.com/binzume/tmpdns@latest
+tmpdns -p 53 "hoge.example.com.:txt:hello! world" "fuga.example.com.:a:192.168.0.1"
+tmpdns -p 53 -z example.com. "hoge:txt:hello" "fuga:a:192.168.0.1"
 ```
+
 (FQDNを示す `.` の書き忘れに注意)
 
 ## Docker image
+
+https://hub.docker.com/r/binzume/tmpdns
 
 ```shell
 dokcer pull binzume/tmpdns
@@ -34,7 +36,7 @@ dig txt hoge.example.com @localhost  # "hello"
 - -p: port (default:53)
 - -z: zone (default:.)
 
-# acme.sh用
+## acme.sh
 
 ACMEv2のDNS認証用のDNSサーバとして利用できます (tmpdnsを実装した当初の目的です)
 
